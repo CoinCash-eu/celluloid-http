@@ -1,7 +1,7 @@
 module Celluloid::Http::Http
 
   def send_request(request)
-    connection = Celluloid::Http::Connection.open(request.host, request.port)
+    connection = Celluloid::Http::Connection.open(request.host, request.port, request.ssl?)
     connection.send_request request
 
     response = connection.response

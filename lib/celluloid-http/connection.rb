@@ -2,11 +2,15 @@ class Celluloid::Http::Connection
   include Celluloid::IO
   attr_reader :socket
 
-  def open(host, port = 80)
+  def open(host, port = 80, ssl = false)
     @socket ||= begin
       socket = TCPSocket.new(host, port)
-      if port = 443
+
+      if ssl
         ssl_context = OpenSSL::SSL::SSLContext.new(:TLSv1_2_client)
+        ssl_context.verify_mode = OpenSSL::SSL::VERIFY_PEER
+        ssl_context.ca_file = ENV['SSL_CERT_FILE'] || OpenSSL::X509::DEFAULT_CERT_FILE
+
         socket = SSLSocket.new(socket, ssl_context)
         socket.connect
       end
@@ -40,9 +44,9 @@ class Celluloid::Http::Connection
     response
   end
 
-  def self.open(host, port = 80)
+  def self.open(host, port = 80, ssl = false)
     connection = self.new
-    connection.open(host, port)
+    connection.open(host, port, ssl)
     connection
   end
 

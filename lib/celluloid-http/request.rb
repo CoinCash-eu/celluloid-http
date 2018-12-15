@@ -12,11 +12,16 @@ class Celluloid::Http::Request
 
   def initialize(url, options = {})
     @uri = URI.parse url
+    @ssl = @uri.scheme == 'https'
     @method = options[:method] || DEFAULT_METHOD
     @raw_body = options[:raw_body]
     @form_data = options[:form_data]
 
     merge_query_params(options[:query_params]) if options[:query_params]
+  end
+
+  def ssl?
+    !!@ssl
   end
 
   def query_params
