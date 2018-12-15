@@ -3,7 +3,16 @@ class Celluloid::Http::Connection
   attr_reader :socket
 
   def open(host, port = 80)
-    @socket = TCPSocket.new(host, port)
+    @socket ||= begin
+      socket = TCPSocket.new(host, port)
+      if port = 443
+        ssl_context = OpenSSL::SSL::SSLContext.new(:TLSv1_2_client)
+        socket = SSLSocket.new(socket, ssl_context)
+        socket.connect
+      end
+
+      socket
+    end
   end
 
   def close
